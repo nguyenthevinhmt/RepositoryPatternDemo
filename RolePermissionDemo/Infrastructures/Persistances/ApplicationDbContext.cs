@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RolePermissionDemo.Domains.Entities;
+using RolePermissionDemo.Domains.Entities.Product;
 using RolePermissionDemo.Domains.EntityBase;
+using RolePermissionDemo.Shared.Consts.Product;
 using System.Security.Claims;
 
 namespace RolePermissionDemo.Infrastructures.Persistances
@@ -10,10 +13,21 @@ namespace RolePermissionDemo.Infrastructures.Persistances
         protected readonly IHttpContextAccessor _httpContextAccessor;
         protected readonly int? UserId = null;
 
+        #region User
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
+        #endregion
+
+        #region Product
+            public DbSet<BillCategory> BillCategories {  get; set; } 
+            public DbSet<Provider> Providers {  get; set; }
+            public DbSet<AssetProvider> AssetProviders {  get; set; }
+            public DbSet<Bill> Bills {  get; set; }
+            public DbSet<Transaction> Transactions {  get; set; }   
+
+        #endregion
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor)
             : base(options)
         {
@@ -139,6 +153,42 @@ namespace RolePermissionDemo.Infrastructures.Persistances
             });
             #endregion
 
+            #region Product
+            //Bill category
+            modelBuilder.Entity<BillCategory>(e =>
+            {
+                e.HasKey(bc => bc.Id);
+                e.HasMany(bc => bc.Providers).WithOne(p => p.BillCategory).HasForeignKey(p => p.BillCategoryId);
+                e.HasMany(bc => bc.Bills).WithOne(p => p.BillCategory).HasForeignKey(p => p.BillCategoryId);
+            });
+
+            // Provider
+            modelBuilder.Entity<Provider>(e =>
+            {
+                e.HasKey(p => p.Id);
+                e.HasMany(p => p.AssetProviders).WithOne(ap => ap.Provider).HasForeignKey(ap => ap.ProviderId);
+            });
+
+            // Asset provider
+            modelBuilder.Entity<AssetProvider>(e =>
+            {
+                e.HasKey(p => p.Id);
+            });
+
+            var jsonConverter = new ValueConverter<string, string>(v => v, v => v);
+            //Bill
+            modelBuilder.Entity<Bill>(e =>
+            {
+                e.HasKey(p => p.Id);
+                e.Property(b => b.BillDetail).HasConversion(jsonConverter);
+            });
+            modelBuilder.Entity<Transaction>(e =>
+            {
+                e.HasKey(t => t.Id);
+                e.Property(t => t.Status).HasDefaultValue(TransactionStatus.INIT);
+                e.Property(t => t.TransactionCode).HasDefaultValue(new DateTime().ToString("ssmmHHddMMyyyyfff"));
+            });
+            #endregion
 
             base.OnModelCreating(modelBuilder);
         }

@@ -1,10 +1,12 @@
-﻿using RolePermissionDemo.Domains.EntityBase;
+﻿using Microsoft.EntityFrameworkCore;
+using RolePermissionDemo.Domains.EntityBase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RolePermissionDemo.Domains.Entities.Product
 {
     [Table(nameof(Provider))]
+    [Index(nameof(BillCategoryId), nameof(Deleted), Name = $"IX_{nameof(Provider)}", IsUnique = false)]
     public class Provider : IFullAudited
     {
         [Key]
@@ -13,8 +15,8 @@ namespace RolePermissionDemo.Domains.Entities.Product
         public string Name { get; set; } = null!;
         [MaxLength(500)]
         public string? Description { get; set; }
-        public int ProductId { get; set; }
-        public Product Product { get; set; } = null!;
+        public int BillCategoryId { get; set; }
+        public BillCategory BillCategory { get; set; } = null!;
         public List<AssetProvider>? AssetProviders { get; set; }
         #region audit
         public DateTime? CreatedDate { get; set; }

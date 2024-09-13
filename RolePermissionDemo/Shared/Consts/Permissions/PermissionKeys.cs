@@ -7,6 +7,13 @@
         public const string MenuDashboard = "menu_dashboard";
         #endregion
 
+        public const string MenuConfig = "menu_config";
+        public const string MenuRoleManager = "menu_role_manager";
+        public const string ButtonCreateRole = "button_create_role";
+        public const string TableRole = "table_role";
+        public const string ButtonDetailRole = "button_detail_role";
+        public const string ButtonUpdateRole = "button_update_role";
+
         #region user account
         public const string MenuUserAccount = "menu_user_account";
         public const string CreateUserAccount = "button_create_user_account";
@@ -21,10 +28,20 @@
         public const string MenuDashboard = "Tổng quan";
         #endregion
 
+
+        public const string MenuConfig = "Cài đặt";
+        public const string MenuRoleManager = "Cài đặt phân quyền";
+        public const string ButtonCreateRole = "Thêm mới";
+        public const string TableRole = "Danh sách nhóm quyền";
+        public const string ButtonDetailRole = "Thông tin chi tiết";
+        public const string ButtonUpdateRole = "Chỉnh sửa";
+
         #region user account
         public const string MenuUserAccount = "Quản lý tài khoản";
         public const string CreateUserAccount = "Thêm mới";
         public const string ListUserAccount = "Danh sách";
         #endregion
+
+
     }
 }

@@ -1,10 +1,13 @@
-﻿using RolePermissionDemo.Domains.EntityBase;
+﻿using Microsoft.EntityFrameworkCore;
+using RolePermissionDemo.Domains.EntityBase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace RolePermissionDemo.Domains.Entities.Product
 {
     [Table(nameof(AssetProvider))]
+
+    [Index(nameof(ProviderId), nameof(Deleted), Name = $"IX_{nameof(AssetProvider)}", IsUnique = false)]
     public class AssetProvider : IFullAudited
     {
         [Key]

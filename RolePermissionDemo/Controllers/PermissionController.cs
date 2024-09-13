@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RolePermissionDemo.Applications.UserModules.Abstracts;
 using RolePermissionDemo.Shared.WebAPIBase;
 
 namespace RolePermissionDemo.Controllers
 {
+    [Authorize]
     [Route("api/permission")]
     [ApiController]
     public class PermissionController : ApiControllerBase
@@ -53,8 +55,8 @@ namespace RolePermissionDemo.Controllers
         /// Check quyền
         /// </summary>
         /// <returns></returns>
-        [HttpGet("check-permission")]
-        public ApiResponse CheckPermission(params string[] permissionKeys)
+        [HttpPost("check-permission")]
+        public ApiResponse CheckPermission([FromBody] string[] permissionKeys)
         {
             try
             {

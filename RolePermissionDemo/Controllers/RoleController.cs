@@ -1,11 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RolePermissionDemo.Applications.UserModules.Abstracts;
 using RolePermissionDemo.Applications.UserModules.Dtos.Role;
 using RolePermissionDemo.Shared.ApplicationBase.Common;
+using RolePermissionDemo.Shared.Consts.Permissions;
+using RolePermissionDemo.Shared.Filters;
 using RolePermissionDemo.Shared.WebAPIBase;
 
 namespace RolePermissionDemo.Controllers
 {
+    [Authorize]
     [Route("api/role")]
     [ApiController]
     public class RoleController : ApiControllerBase
@@ -22,6 +26,7 @@ namespace RolePermissionDemo.Controllers
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [PermissionFilter(PermissionKeys.MenuRoleManager)]
         [HttpGet("find-all")]
         public async Task<ApiResponse> FindAll([FromQuery] PagingRequestBaseDto input)
         {
@@ -40,6 +45,7 @@ namespace RolePermissionDemo.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [PermissionFilter(PermissionKeys.ButtonDetailRole, PermissionKeys.ButtonUpdateRole)]
         [HttpGet("find-by-id/{id}")]
         public async Task<ApiResponse> FindById(int id)
         {

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RolePermissionDemo.Applications.UserModules.Abstracts;
 using RolePermissionDemo.Applications.UserModules.Implements;
@@ -6,6 +7,7 @@ using RolePermissionDemo.Shared.WebAPIBase;
 
 namespace RolePermissionDemo.Controllers
 {
+    [Authorize]
     [Route("api/user")]
     [ApiController]
     public class UserController : ApiControllerBase

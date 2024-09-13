@@ -6,6 +6,6 @@ namespace RolePermissionDemo.Applications.UserModules.Dtos.Role
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public List<string>? RolePermissions { get; set; }
+        public List<string>? PermissionKeys { get; set; }
     }
 }

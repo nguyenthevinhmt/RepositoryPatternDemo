@@ -82,6 +82,7 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
             var totalItems = await query.CountAsync();
             var items = await query.Select(r => new RoleDto
             {
+                Id = r.Id,
                 Name = r.Name,
                 Status = r.Status,
             }).ToListAsync();
@@ -109,7 +110,7 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
                                             .Select(c => new DetailRoleDto { 
                                                 Id = c.Id,
                                                 Name = c.Name,
-                                                RolePermissions = c.RolePermissions.Where(rp => !rp.Deleted).Select(rp => rp.PermissionKey).Distinct().ToList(),
+                                                PermissionKeys = c.RolePermissions.Where(rp => !rp.Deleted).Select(rp => rp.PermissionKey).Distinct().ToList(),
                                             })
                                             .FirstOrDefaultAsync()
                     ?? throw new UserFriendlyException(ErrorCode.RoleNotFound);
@@ -118,7 +119,7 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
             {
                 Id = roleResult.Id,
                 Name = roleResult.Name,
-                RolePermissions = roleResult.RolePermissions
+                PermissionKeys = roleResult.PermissionKeys
             };
         }
 

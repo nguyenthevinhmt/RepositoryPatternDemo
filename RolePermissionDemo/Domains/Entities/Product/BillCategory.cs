@@ -1,4 +1,5 @@
-﻿using RolePermissionDemo.Domains.EntityBase;
+﻿using Microsoft.EntityFrameworkCore;
+using RolePermissionDemo.Domains.EntityBase;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,6 +9,7 @@ namespace RolePermissionDemo.Domains.Entities.Product
     /// Loại hóa đơn cho sản phẩm nào
     /// </summary>
     [Table(nameof(BillCategory))]
+    [Index(nameof(Deleted), Name = $"IX_{nameof(BillCategory)}", IsUnique = false)]
     public class BillCategory : IFullAudited
     {
         public int Id { get; set; }
@@ -15,7 +17,7 @@ namespace RolePermissionDemo.Domains.Entities.Product
         public string Name { get; set; } = null!;
         [MaxLength(512)]
         public string? Description { get; set; }
-        public List<Product>? Products { get; set; }
+        public List<Provider>? Providers { get; set; }
         public List<Bill>? Bills { get; set; }
         #region audit
         public DateTime? CreatedDate { get; set; }

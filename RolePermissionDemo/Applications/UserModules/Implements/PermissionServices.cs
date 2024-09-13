@@ -21,7 +21,7 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
             _dbContext = dbContext;
             _httpContext = httpContext;
         }
-        public bool CheckPermission(params string[] permissionKeys)
+        public bool CheckPermission(string[] permissionKeys)
         {
             var currentUserId = _httpContext.GetCurrentUserId();
             var currentUserType = _httpContext.GetCurrentUserType();
