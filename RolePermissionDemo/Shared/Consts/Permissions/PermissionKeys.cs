@@ -13,6 +13,8 @@
         public const string TableRole = "table_role";
         public const string ButtonDetailRole = "button_detail_role";
         public const string ButtonUpdateRole = "button_update_role";
+        public const string ButtonUpdateStatusRole = "button_update_status_role";
+
 
         #region user account
         public const string MenuUserAccount = "menu_user_account";
@@ -35,6 +37,7 @@
         public const string TableRole = "Danh sách nhóm quyền";
         public const string ButtonDetailRole = "Thông tin chi tiết";
         public const string ButtonUpdateRole = "Chỉnh sửa";
+        public const string ButtonUpdateStatusRole = "Kích hoạt/ Hủy kích hoạt";
 
         #region user account
         public const string MenuUserAccount = "Quản lý tài khoản";

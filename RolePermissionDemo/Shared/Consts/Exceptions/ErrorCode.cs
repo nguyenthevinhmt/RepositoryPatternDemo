@@ -18,6 +18,10 @@
         public const int RoleNotFound = 1008;
         public const int RoleOrUserNotFound = 1009;
 
+        public const int KeyPermissionNotFound = 1010;
+        public const int KeyPermissionHasBeenExist = 1011;
+        public const int KeyPermissionOrderFailed = 1012;
+
         //Từ điển lỗi
         public static readonly Dictionary<int, string> ErrorDict = new Dictionary<int, string>()
         {
@@ -37,6 +41,9 @@
             {LoginExpired, ErrorMessage.LoginExpired },
             {RoleNotFound, ErrorMessage.RoleNotFound },
             {RoleOrUserNotFound, ErrorMessage.RoleOrUserNotFound },
+            {KeyPermissionNotFound, ErrorMessage.KeyPermissionNotFound },
+            {KeyPermissionHasBeenExist, ErrorMessage.KeyPermissionHasBeenExist },
+            {KeyPermissionOrderFailed, ErrorMessage.KeyPermissionOrderFailed },
         };
 
         public static string GetMessage(int errorCode)

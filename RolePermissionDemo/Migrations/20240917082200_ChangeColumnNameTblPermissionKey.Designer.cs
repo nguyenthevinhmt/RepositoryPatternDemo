@@ -12,8 +12,8 @@ using RolePermissionDemo.Infrastructures.Persistances;
 namespace RolePermissionDemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240905034201_InitdB")]
-    partial class InitdB
+    [Migration("20240917082200_ChangeColumnNameTblPermissionKey")]
+    partial class ChangeColumnNameTblPermissionKey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,56 @@ namespace RolePermissionDemo.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("RolePermissionDemo.Domains.Entities.KeyPermission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("KeyPermissionId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ModifiedBy")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderPriority")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PermissionKey")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PermissionLabel")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("KeyPermissionId");
+
+                    b.HasIndex(new[] { "ParentId", "Deleted", "OrderPriority" }, "IX_KeyPermission");
+
+                    b.ToTable("KeyPermission", "auth");
+                });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.Role", b =>
                 {
@@ -39,7 +89,7 @@ namespace RolePermissionDemo.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(3155));
+                        .HasDefaultValue(new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(9376));
 
                     b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
@@ -123,7 +173,7 @@ namespace RolePermissionDemo.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(1738));
+                        .HasDefaultValue(new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(7055));
 
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
@@ -140,6 +190,9 @@ namespace RolePermissionDemo.Migrations
                         .HasColumnType("nvarchar(512)");
 
                     b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserType")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
@@ -168,7 +221,7 @@ namespace RolePermissionDemo.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(2713));
+                        .HasDefaultValue(new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(8561));
 
                     b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
@@ -196,6 +249,13 @@ namespace RolePermissionDemo.Migrations
                     b.HasIndex(new[] { "Deleted", "UserId", "RoleId" }, "IX_UserRole");
 
                     b.ToTable("UserRole", "auth");
+                });
+
+            modelBuilder.Entity("RolePermissionDemo.Domains.Entities.KeyPermission", b =>
+                {
+                    b.HasOne("RolePermissionDemo.Domains.Entities.KeyPermission", null)
+                        .WithMany("Children")
+                        .HasForeignKey("KeyPermissionId");
                 });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.RolePermission", b =>
@@ -226,6 +286,11 @@ namespace RolePermissionDemo.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RolePermissionDemo.Domains.Entities.KeyPermission", b =>
+                {
+                    b.Navigation("Children");
                 });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.Role", b =>

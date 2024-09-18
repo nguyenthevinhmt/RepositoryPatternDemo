@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RolePermissionDemo.Infrastructures.Persistances;
 
@@ -11,9 +12,11 @@ using RolePermissionDemo.Infrastructures.Persistances;
 namespace RolePermissionDemo.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240917041650_InitDb")]
+    partial class InitDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,24 +24,6 @@ namespace RolePermissionDemo.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("RolePermissionDemo.Domains.Entities.ApiEndpoint", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ApiEndpoint", "auth");
-                });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.KeyPermission", b =>
                 {
@@ -60,6 +45,15 @@ namespace RolePermissionDemo.Migrations
                     b.Property<int?>("KeyPermissionId")
                         .HasColumnType("int");
 
+                    b.Property<string>("KeyPermissionLabel")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("KeyPermissionName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");
 
@@ -72,15 +66,6 @@ namespace RolePermissionDemo.Migrations
                     b.Property<int?>("ParentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PermissionKey")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("PermissionLabel")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("KeyPermissionId");
@@ -88,32 +73,6 @@ namespace RolePermissionDemo.Migrations
                     b.HasIndex(new[] { "ParentId", "Deleted", "OrderPriority" }, "IX_KeyPermission");
 
                     b.ToTable("KeyPermission", "auth");
-                });
-
-            modelBuilder.Entity("RolePermissionDemo.Domains.Entities.PermissionForApiEndpoint", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ApiEndpointId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsAuthenticate")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("KeyPermissionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApiEndpointId");
-
-                    b.HasIndex("KeyPermissionId");
-
-                    b.ToTable("PermissionForApiEndpoint", "auth");
                 });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.Role", b =>
@@ -130,7 +89,7 @@ namespace RolePermissionDemo.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 9, 18, 14, 10, 14, 149, DateTimeKind.Local).AddTicks(7461));
+                        .HasDefaultValue(new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(5502));
 
                     b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
@@ -214,7 +173,7 @@ namespace RolePermissionDemo.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 9, 18, 14, 10, 14, 149, DateTimeKind.Local).AddTicks(5336));
+                        .HasDefaultValue(new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(1662));
 
                     b.Property<bool>("Deleted")
                         .HasColumnType("bit");
@@ -262,7 +221,7 @@ namespace RolePermissionDemo.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValue(new DateTime(2024, 9, 18, 14, 10, 14, 149, DateTimeKind.Local).AddTicks(6874));
+                        .HasDefaultValue(new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(4262));
 
                     b.Property<bool>("Deleted")
                         .ValueGeneratedOnAdd()
@@ -295,27 +254,8 @@ namespace RolePermissionDemo.Migrations
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.KeyPermission", b =>
                 {
                     b.HasOne("RolePermissionDemo.Domains.Entities.KeyPermission", null)
-                        .WithMany("Children")
+                        .WithMany("ChildrenKeyPermissions")
                         .HasForeignKey("KeyPermissionId");
-                });
-
-            modelBuilder.Entity("RolePermissionDemo.Domains.Entities.PermissionForApiEndpoint", b =>
-                {
-                    b.HasOne("RolePermissionDemo.Domains.Entities.ApiEndpoint", "ApiEndpoint")
-                        .WithMany()
-                        .HasForeignKey("ApiEndpointId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RolePermissionDemo.Domains.Entities.KeyPermission", "KeyPermission")
-                        .WithMany()
-                        .HasForeignKey("KeyPermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ApiEndpoint");
-
-                    b.Navigation("KeyPermission");
                 });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.RolePermission", b =>
@@ -350,7 +290,7 @@ namespace RolePermissionDemo.Migrations
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.KeyPermission", b =>
                 {
-                    b.Navigation("Children");
+                    b.Navigation("ChildrenKeyPermissions");
                 });
 
             modelBuilder.Entity("RolePermissionDemo.Domains.Entities.Role", b =>

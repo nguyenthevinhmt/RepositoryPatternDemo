@@ -1,14 +1,11 @@
 ﻿using RolePermissionDemo.Applications.UserModules.Dtos.Permission;
+using RolePermissionDemo.Applications.UserModules.Dtos.Permission.KeyPermission;
+using RolePermissionDemo.Shared.ApplicationBase.Common;
 
 namespace RolePermissionDemo.Applications.UserModules.Abstracts
 {
     public interface IPermissionServices
     {
-        /// <summary>
-        /// Danh sách quyền
-        /// </summary>
-        /// <returns></returns>
-        List<PermissionDto> FindAll();
         /// <summary>
         /// Check permission
         /// </summary>
@@ -22,5 +19,21 @@ namespace RolePermissionDemo.Applications.UserModules.Abstracts
         /// <param name="userId"></param>
         /// <returns></returns>
         List<string> GetPermissionsByCurrentUserId();
+
+        /// <summary>
+        /// Danh sách quyền fixed
+        /// </summary>
+        /// <returns></returns>
+        List<PermissionDto> FindAll();
+
+        /// <summary>
+        /// Lấy all permission dựa vào api path
+        /// </summary>
+        /// <param name="api"></param>
+        /// <returns></returns>
+        string[] GetAllPermissionKeyByApiEndpoint(string api); 
+
+
+
     }
 }

@@ -6,22 +6,34 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RolePermissionDemo.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDb : Migration
+    public partial class ChangeColumnNameTblPermissionKey : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.RenameColumn(
+                name: "KeyPermissionName",
+                schema: "auth",
+                table: "KeyPermission",
+                newName: "PermissionKey");
+
+            migrationBuilder.RenameColumn(
+                name: "KeyPermissionLabel",
+                schema: "auth",
+                table: "KeyPermission",
+                newName: "PermissionLabel");
+
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedDate",
                 schema: "auth",
                 table: "UserRole",
                 type: "datetime2",
                 nullable: true,
-                defaultValue: new DateTime(2024, 9, 5, 14, 44, 50, 87, DateTimeKind.Local).AddTicks(8333),
+                defaultValue: new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(8561),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true,
-                oldDefaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(2713));
+                oldDefaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(4262));
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedDate",
@@ -29,19 +41,11 @@ namespace RolePermissionDemo.Migrations
                 table: "User",
                 type: "datetime2",
                 nullable: true,
-                defaultValue: new DateTime(2024, 9, 5, 14, 44, 50, 87, DateTimeKind.Local).AddTicks(6938),
+                defaultValue: new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(7055),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true,
-                oldDefaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(1738));
-
-            migrationBuilder.AddColumn<int>(
-                name: "UserType",
-                schema: "auth",
-                table: "User",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
+                oldDefaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(1662));
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedDate",
@@ -49,20 +53,27 @@ namespace RolePermissionDemo.Migrations
                 table: "Role",
                 type: "datetime2",
                 nullable: true,
-                defaultValue: new DateTime(2024, 9, 5, 14, 44, 50, 87, DateTimeKind.Local).AddTicks(8910),
+                defaultValue: new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(9376),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true,
-                oldDefaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(3155));
+                oldDefaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(5502));
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "UserType",
+            migrationBuilder.RenameColumn(
+                name: "PermissionLabel",
                 schema: "auth",
-                table: "User");
+                table: "KeyPermission",
+                newName: "KeyPermissionLabel");
+
+            migrationBuilder.RenameColumn(
+                name: "PermissionKey",
+                schema: "auth",
+                table: "KeyPermission",
+                newName: "KeyPermissionName");
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedDate",
@@ -70,11 +81,11 @@ namespace RolePermissionDemo.Migrations
                 table: "UserRole",
                 type: "datetime2",
                 nullable: true,
-                defaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(2713),
+                defaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(4262),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true,
-                oldDefaultValue: new DateTime(2024, 9, 5, 14, 44, 50, 87, DateTimeKind.Local).AddTicks(8333));
+                oldDefaultValue: new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(8561));
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedDate",
@@ -82,11 +93,11 @@ namespace RolePermissionDemo.Migrations
                 table: "User",
                 type: "datetime2",
                 nullable: true,
-                defaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(1738),
+                defaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(1662),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true,
-                oldDefaultValue: new DateTime(2024, 9, 5, 14, 44, 50, 87, DateTimeKind.Local).AddTicks(6938));
+                oldDefaultValue: new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(7055));
 
             migrationBuilder.AlterColumn<DateTime>(
                 name: "CreatedDate",
@@ -94,11 +105,11 @@ namespace RolePermissionDemo.Migrations
                 table: "Role",
                 type: "datetime2",
                 nullable: true,
-                defaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(3155),
+                defaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(5502),
                 oldClrType: typeof(DateTime),
                 oldType: "datetime2",
                 oldNullable: true,
-                oldDefaultValue: new DateTime(2024, 9, 5, 14, 44, 50, 87, DateTimeKind.Local).AddTicks(8910));
+                oldDefaultValue: new DateTime(2024, 9, 17, 15, 21, 59, 806, DateTimeKind.Local).AddTicks(9376));
         }
     }
 }

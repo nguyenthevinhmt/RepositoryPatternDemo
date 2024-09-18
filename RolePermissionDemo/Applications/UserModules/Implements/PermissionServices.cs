@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RolePermissionDemo.Applications.UserModules.Abstracts;
 using RolePermissionDemo.Applications.UserModules.Dtos.Permission;
+using RolePermissionDemo.Applications.UserModules.Dtos.Permission.KeyPermission;
 using RolePermissionDemo.Domains.Entities;
 using RolePermissionDemo.Infrastructures.Persistances;
 using RolePermissionDemo.Shared.ApplicationBase.Common;
@@ -26,7 +27,7 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
             var currentUserId = _httpContext.GetCurrentUserId();
             var currentUserType = _httpContext.GetCurrentUserType();
             _logger.LogInformation($"{nameof(CheckPermission)}: permissionKeys = {permissionKeys}, userId: {currentUserId}, userType: {currentUserType}");
-            return currentUserType == UserTypes.ADMIN || GetListPermissionKeyContains(currentUserId, permissionKeys).Any(); ;
+            return currentUserType == UserTypes.ADMIN || GetListPermissionKeyContains(currentUserId, permissionKeys).Any();
         }
 
         public List<PermissionDto> FindAll()
@@ -39,6 +40,16 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
                 ParentKey = p.Value.ParentKey ?? ""
             }).ToList();
             return result;
+        }
+
+        public string[] GetAllPermissionKeyByApiEndpoint(string api)
+        {
+            var query = (from apiEndpoint in _dbContext.ApiEndpoints
+                         join permissionOfApi in _dbContext.PermissionForApiEndpoints on apiEndpoint.Id equals permissionOfApi.ApiEndpointId
+                         join permissionKey in _dbContext.KeyPermission on permissionOfApi.KeyPermissionId equals permissionKey.Id
+                         where api.ToLower().Contains(apiEndpoint.Path)
+                         select permissionKey.PermissionKey).ToArray<string>();
+            return query;
         }
 
         public List<string> GetPermissionsByCurrentUserId()

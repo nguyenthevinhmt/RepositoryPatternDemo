@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using RolePermissionDemo.Applications.UserModules.Abstracts;
 using RolePermissionDemo.Applications.UserModules.Implements;
 using RolePermissionDemo.Infrastructures.Persistances;
+using RolePermissionDemo.Shared.Middlewares;
 using RolePermissionDemo.Shared.WebAPIBase;
 using System.Data.Common;
 using System.Reflection;
@@ -93,6 +94,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IPermissionServices, PermissionServices>();
 builder.Services.AddScoped<IUserServices, UserService>();
+builder.Services.AddScoped<IKeyPermissionService, KeyPermissionService>();
 
 var app = builder.Build();
 
@@ -107,6 +109,8 @@ app.UseHttpsRedirection();
 app.UseCors("MyPolicy");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<PermissionMiddleWare>();
 
 app.MapControllers();
 

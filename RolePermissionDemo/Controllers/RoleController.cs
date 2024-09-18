@@ -83,6 +83,7 @@ namespace RolePermissionDemo.Controllers
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
+        [PermissionFilter(PermissionKeys.ButtonUpdateRole)]
         [HttpPut("update")]
         public async Task<ApiResponse> Update([FromBody] UpdateRoleDto input)
         {

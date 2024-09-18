@@ -6,13 +6,42 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RolePermissionDemo.Migrations
 {
     /// <inheritdoc />
-    public partial class InitdB : Migration
+    public partial class InitDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
                 name: "auth");
+
+            migrationBuilder.CreateTable(
+                name: "KeyPermission",
+                schema: "auth",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    KeyPermissionName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    KeyPermissionLabel = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    ParentId = table.Column<int>(type: "int", nullable: true),
+                    OrderPriority = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedBy = table.Column<int>(type: "int", nullable: true),
+                    ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModifiedBy = table.Column<int>(type: "int", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: false),
+                    KeyPermissionId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_KeyPermission", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_KeyPermission_KeyPermission_KeyPermissionId",
+                        column: x => x.KeyPermissionId,
+                        principalSchema: "auth",
+                        principalTable: "KeyPermission",
+                        principalColumn: "Id");
+                });
 
             migrationBuilder.CreateTable(
                 name: "Role",
@@ -23,7 +52,7 @@ namespace RolePermissionDemo.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(3155)),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(5502)),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ModifiedBy = table.Column<int>(type: "int", nullable: true),
@@ -44,7 +73,8 @@ namespace RolePermissionDemo.Migrations
                     Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(1738)),
+                    UserType = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(1662)),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ModifiedBy = table.Column<int>(type: "int", nullable: true),
@@ -91,7 +121,7 @@ namespace RolePermissionDemo.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValue: new DateTime(2024, 9, 5, 10, 42, 1, 705, DateTimeKind.Local).AddTicks(2713)),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true, defaultValue: new DateTime(2024, 9, 17, 11, 16, 49, 744, DateTimeKind.Local).AddTicks(4262)),
                     CreatedBy = table.Column<int>(type: "int", nullable: true),
                     ModifiedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ModifiedBy = table.Column<int>(type: "int", nullable: true),
@@ -115,6 +145,18 @@ namespace RolePermissionDemo.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KeyPermission",
+                schema: "auth",
+                table: "KeyPermission",
+                columns: new[] { "ParentId", "Deleted", "OrderPriority" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_KeyPermission_KeyPermissionId",
+                schema: "auth",
+                table: "KeyPermission",
+                column: "KeyPermissionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Role",
@@ -162,6 +204,10 @@ namespace RolePermissionDemo.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "KeyPermission",
+                schema: "auth");
+
             migrationBuilder.DropTable(
                 name: "RolePermission",
                 schema: "auth");
