@@ -9,6 +9,6 @@ namespace RolePermissionDemo.Applications.UserModules.Dtos.Permission.KeyPermiss
         public string? PermissionLabel { get; set; }
         public int? ParentId { get; set; }
         [Range(1, int.MaxValue)]
-        public int? OrderPriority { get; set; }
+        public int OrderPriority { get; set; }
     }
 }

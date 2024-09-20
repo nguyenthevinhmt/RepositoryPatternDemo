@@ -21,6 +21,7 @@
         public const int KeyPermissionNotFound = 1010;
         public const int KeyPermissionHasBeenExist = 1011;
         public const int KeyPermissionOrderFailed = 1012;
+        public const int ApiEndpointNotFound = 1013;
 
         //Từ điển lỗi
         public static readonly Dictionary<int, string> ErrorDict = new Dictionary<int, string>()
@@ -44,6 +45,7 @@
             {KeyPermissionNotFound, ErrorMessage.KeyPermissionNotFound },
             {KeyPermissionHasBeenExist, ErrorMessage.KeyPermissionHasBeenExist },
             {KeyPermissionOrderFailed, ErrorMessage.KeyPermissionOrderFailed },
+            {ApiEndpointNotFound, ErrorMessage.ApiEndpointNotFound },
         };
 
         public static string GetMessage(int errorCode)

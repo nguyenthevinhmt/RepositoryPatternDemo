@@ -19,6 +19,8 @@ namespace RolePermissionDemo.Domains.Entities
         public int? ParentId { get; set; }
         public int OrderPriority { get; set; }
         public List<KeyPermission>? Children { get; set; }
+
+        public List<PermissionForApiEndpoint>? PermissionForApiEndpoints { get; set; }
         #region audit
         public DateTime? CreatedDate { get; set; }
         public int? CreatedBy { get; set; }

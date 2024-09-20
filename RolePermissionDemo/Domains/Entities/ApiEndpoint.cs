@@ -11,5 +11,8 @@ namespace RolePermissionDemo.Domains.Entities
         public int Id { get; set; }
         [MaxLength(500)]
         public string Path { get; set; } = null!;
+        [MaxLength(500)]
+        public string? Description { get; set; }
+        public List<PermissionForApiEndpoint> PermissionForApiEndpoints { get; set; } = new();
     }
 }

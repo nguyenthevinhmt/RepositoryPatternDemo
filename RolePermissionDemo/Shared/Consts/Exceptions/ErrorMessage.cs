@@ -24,6 +24,7 @@
         public const string KeyPermissionNotFound = "Quyền không tồn tại trong hệ thống";
         public const string KeyPermissionHasBeenExist = "Key quyền đã tồn tại trong hệ thống";
         public const string KeyPermissionOrderFailed = "Thứ tự sắp xếp của bản ghi không hợp lệ";
+        public const string ApiEndpointNotFound = "Api endpoint không tồn tại trong hệ thống";
 
 
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RolePermissionDemo.Applications.UserModules.Abstracts;
+using RolePermissionDemo.Applications.UserModules.Dtos.ConfigPermission;
 using RolePermissionDemo.Applications.UserModules.Dtos.Permission.KeyPermission;
 using RolePermissionDemo.Shared.WebAPIBase;
 
@@ -157,6 +158,81 @@ namespace RolePermissionDemo.Controllers
             {
                 _keyPermissionModuleService.Delete(id);
                 return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Thêm các quyền đi kèm với api endpoints
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpPost("create-permission-for-api")]
+        public ApiResponse CreatePermissionForApi([FromBody] CreatePermissionApiDto input)
+        {
+            try
+            {
+                _keyPermissionModuleService.CreatePermissionConfig(input);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật api endpoint kèm permission key
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpPut("update-permission-for-api")]
+        public ApiResponse UpdatePermissionForApi([FromBody] UpdatePermissionConfigDto input)
+        {
+            try
+            {
+                _keyPermissionModuleService.UpdatePermissionConfig(input);
+                return new();
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Danh sách api endpoint
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        [HttpGet("get-all-permission-of-api")]
+        public ApiResponse GetAllPermissionOfApi([FromQuery] PermissionApiRequestDto input) {
+            try
+            {
+                
+                return new(_keyPermissionModuleService.GetAllPermissionApi(input));
+            }
+            catch (Exception ex)
+            {
+                return OkException(ex);
+            }
+        }
+
+        /// <summary>
+        /// Chi tiết api endpoint
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("get-permission-of-api-by-id/{id}")]
+        public ApiResponse GetPermissionOfApiById(int id)
+        {
+            try
+            {
+               
+                return new(_keyPermissionModuleService.GetPermissionApiById(id));
             }
             catch (Exception ex)
             {

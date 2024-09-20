@@ -54,7 +54,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
-        Title = "Foody Web API"
+        Title = "Permisison Demo Web API"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
