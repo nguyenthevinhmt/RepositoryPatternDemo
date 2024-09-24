@@ -264,8 +264,8 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
                 {
                     if (permissionKeyInput.OrderPriority >= maxOrderPriority + 1)
                     {
-                        permissionKeyInput.OrderPriority = maxOrderPriority + 1;
-                        //throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
+                        //permissionKeyInput.OrderPriority = maxOrderPriority + 1;
+                        throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
                     }
                     // Cập nhật nếu đã tồn tại
                     if (permissionKeyInput.OrderPriority > existingKeyPermission.OrderPriority)
@@ -287,8 +287,8 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
                 {
                     if (permissionKeyInput.OrderPriority > maxOrderPriority + 1)
                     {
-                        permissionKeyInput.OrderPriority = maxOrderPriority + 1;
-                        //throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
+                        //permissionKeyInput.OrderPriority = maxOrderPriority + 1;
+                        throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
                     }
                     // Thêm mới nếu chưa tồn tại
                     var newKeyPermission = new KeyPermission
