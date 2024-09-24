@@ -7,7 +7,6 @@ using RolePermissionDemo.Applications.UserModules.Implements;
 using RolePermissionDemo.Infrastructures.Persistances;
 using RolePermissionDemo.Shared.Middlewares;
 using RolePermissionDemo.Shared.WebAPIBase;
-using System.Data.Common;
 using System.Reflection;
 using System.Text;
 

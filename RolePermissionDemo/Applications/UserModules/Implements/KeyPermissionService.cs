@@ -47,7 +47,7 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
                 OrderPriority = input.OrderPriority,
                 ParentId = input.ParentId,
             };
-
+             
             _dbContext.KeyPermission.Add(newKeyPermission);
             _dbContext.SaveChanges();
 
@@ -183,23 +183,54 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
             _dbContext.ApiEndpoints.Add(newApiEndpoint);
             _dbContext.SaveChanges();
 
+            var existedPK = _dbContext.KeyPermission
+                .Where(kp => input.PermissionKeys.Select(pk => pk.PermissionKey).Contains(kp.PermissionKey))
+                .ToDictionary(kp => kp.PermissionKey, kp => kp);
 
+            var newPermissionForApi = new List<PermissionForApiEndpoint>();
+            var newKeyPermissions = new List<KeyPermission>();
 
-            var listNewKeyPermission = input.PermissionKeys.Select(pk => new KeyPermission
+            foreach (var pkInput in input.PermissionKeys)
             {
-                PermissionKey = pk.PermissionKey,
-                PermissionLabel = pk.PermissionLabel,
-                ParentId = pk.ParentId,
-                OrderPriority = pk.OrderPriority
-            }).ToList();
-            _dbContext.KeyPermission.AddRange(listNewKeyPermission);
-            _dbContext.SaveChanges();
+                KeyPermission keyPermission;
+                if (existedPK.TryGetValue(pkInput.PermissionKey, out var existingKeyPermission))
+                {
+                    keyPermission = existingKeyPermission;
+                }
+                else
+                {
+                    keyPermission = new KeyPermission
+                    {
+                        PermissionKey = pkInput.PermissionKey,
+                        PermissionLabel = pkInput.PermissionLabel,
+                        ParentId = pkInput.ParentId, // Có thể null cho permission key gốc
+                        OrderPriority = pkInput.OrderPriority
+                    };
+                    newKeyPermissions.Add(keyPermission);
+                }
 
-            var newPermissionForApi = listNewKeyPermission.Select(c => new PermissionForApiEndpoint
+                newPermissionForApi.Add(new PermissionForApiEndpoint
+                {
+                    KeyPermission = keyPermission,
+                    ApiEndpoint = newApiEndpoint
+                });
+            }
+
+            if (newKeyPermissions.Any())
             {
-                KeyPermissionId = c.Id,
-                ApiEndpointId = newApiEndpoint.Id
-            });
+                foreach(var newKeyPermission in newKeyPermissions)
+                {
+                    var maxOrderPriority = _dbContext.KeyPermission.Where(k => k.ParentId == newKeyPermission.ParentId).Select(k => k.OrderPriority).Max();
+                    if (newKeyPermission.OrderPriority > maxOrderPriority + 1)
+                    {
+                        throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
+                    }
+                    _dbContext.KeyPermission.Where(k => k.ParentId == newKeyPermission.ParentId && k.OrderPriority >= newKeyPermission.OrderPriority)
+                                   .ExecuteUpdate(kp => kp.SetProperty(k => k.OrderPriority, k => k.OrderPriority + 1));
+                    _dbContext.SaveChanges();
+                }
+                _dbContext.KeyPermission.AddRange(newKeyPermissions);
+            }
 
             _dbContext.PermissionForApiEndpoints.AddRange(newPermissionForApi);
             _dbContext.SaveChanges();
@@ -210,72 +241,84 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
         public void UpdatePermissionConfig(UpdatePermissionConfigDto input)
         {
             _logger.LogInformation($"{nameof(UpdatePermissionConfig)}: input = {JsonSerializer.Serialize(input)}");
-            using var transaction = _dbContext.Database.BeginTransaction();
+            var transaction = _dbContext.Database.BeginTransaction();
 
             // Lấy ApiEndpoint cần cập nhật
             var apiEndpoint = _dbContext.ApiEndpoints.FirstOrDefault(a => a.Id == input.Id)
-                                ?? throw new UserFriendlyException(ErrorCode.KeyPermissionNotFound);
+                                ?? throw new UserFriendlyException(ErrorCode.ApiEndpointNotFound);
             apiEndpoint.Path = input.Path;
+            apiEndpoint.Description = input.Description;
 
-            // Lấy danh sách KeyPermission theo Id của chúng
+            // Lấy tất cả KeyPermission hiện có liên quan đến input
             var existingKeyPermissions = _dbContext.KeyPermission
-                .Where(kp => input.PermissionKeys.Select(pk => pk.Id).Contains(kp.Id))
-                .ToList();
+                .Where(kp => input.PermissionKeys.Select(pk => pk.Id).Contains(kp.Id) ||
+                             input.PermissionKeys.Select(pk => pk.PermissionKey).Contains(kp.PermissionKey))
+                .ToDictionary(kp => kp.PermissionKey);
 
-            // Cập nhật hoặc thêm KeyPermission
-            foreach (var permissionKey in input.PermissionKeys)
+            var updatedOrNewKeyPermissions = new List<KeyPermission>();
+
+            foreach (var permissionKeyInput in input.PermissionKeys)
             {
-                var pk = existingKeyPermissions.FirstOrDefault(kp => kp.Id == permissionKey.Id);
-                if (pk != null)
+                var maxOrderPriority = _dbContext.KeyPermission.Where(k => k.ParentId == permissionKeyInput.ParentId).Select(k => k.OrderPriority).Max();
+                if (existingKeyPermissions.TryGetValue(permissionKeyInput.PermissionKey, out var existingKeyPermission))
                 {
+                    if (permissionKeyInput.OrderPriority >= maxOrderPriority + 1)
+                    {
+                        permissionKeyInput.OrderPriority = maxOrderPriority + 1;
+                        //throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
+                    }
                     // Cập nhật nếu đã tồn tại
-                    pk.PermissionLabel = permissionKey.PermissionLabel;
-                    pk.PermissionKey = permissionKey.PermissionKey;
-                    pk.OrderPriority = permissionKey.OrderPriority;
-                    pk.ParentId = permissionKey.ParentId;
+                    if (permissionKeyInput.OrderPriority > existingKeyPermission.OrderPriority)
+                    {
+                        _dbContext.KeyPermission.Where(k => k.ParentId == permissionKeyInput.ParentId && k.OrderPriority <= permissionKeyInput.OrderPriority && k.OrderPriority > existingKeyPermission.OrderPriority)
+                                                .ExecuteUpdate(kp => kp.SetProperty(k => k.OrderPriority, k => k.OrderPriority - 1));
+                    }
+                    else if (permissionKeyInput.OrderPriority < existingKeyPermission.OrderPriority)
+                    {
+                        _dbContext.KeyPermission.Where(k => k.ParentId == permissionKeyInput.ParentId && k.OrderPriority >= permissionKeyInput.OrderPriority && k.OrderPriority < existingKeyPermission.OrderPriority)
+                                                .ExecuteUpdate(kp => kp.SetProperty(k => k.OrderPriority, k => k.OrderPriority + 1));
+                    }
+                    existingKeyPermission.PermissionLabel = permissionKeyInput.PermissionLabel;
+                    existingKeyPermission.OrderPriority = permissionKeyInput.OrderPriority;
+                    existingKeyPermission.ParentId = permissionKeyInput.ParentId; // Có thể null cho permission key gốc
+                    updatedOrNewKeyPermissions.Add(existingKeyPermission);
                 }
                 else
                 {
-                    // Thêm mới nếu chưa tồn tại
-                    _dbContext.KeyPermission.Add(new KeyPermission
+                    if (permissionKeyInput.OrderPriority > maxOrderPriority + 1)
                     {
-                        ParentId = permissionKey.ParentId,
-                        OrderPriority = permissionKey.OrderPriority,
-                        PermissionKey = permissionKey.PermissionKey,
-                        PermissionLabel = permissionKey.PermissionLabel
-                    });
+                        permissionKeyInput.OrderPriority = maxOrderPriority + 1;
+                        //throw new UserFriendlyException(ErrorCode.KeyPermissionOrderFailed);
+                    }
+                    // Thêm mới nếu chưa tồn tại
+                    var newKeyPermission = new KeyPermission
+                    {
+                        PermissionKey = permissionKeyInput.PermissionKey,
+                        PermissionLabel = permissionKeyInput.PermissionLabel,
+                        OrderPriority = permissionKeyInput.OrderPriority,
+                        ParentId = permissionKeyInput.ParentId // Có thể null cho permission key gốc
+                    };
+                    _dbContext.KeyPermission.Where(k => k.ParentId == newKeyPermission.ParentId && k.OrderPriority >= newKeyPermission.OrderPriority)
+                                  .ExecuteUpdate(kp => kp.SetProperty(k => k.OrderPriority, k => k.OrderPriority + 1));
+                    _dbContext.KeyPermission.Add(newKeyPermission);
+                    updatedOrNewKeyPermissions.Add(newKeyPermission);
                 }
             }
+            _dbContext.SaveChanges();
 
-            // Lấy danh sách PermissionForApiEndpoints liên quan
+            // Cập nhật PermissionForApiEndpoints
             var existingPermissionsForApi = _dbContext.PermissionForApiEndpoints
-                .Where(pfa => input.PermissionKeys.Select(pk => pk.Id).Contains(pfa.KeyPermissionId)
-                              && pfa.ApiEndpointId == input.Id)
+                .Where(pfa => pfa.ApiEndpointId == input.Id)
                 .ToList();
+            _dbContext.PermissionForApiEndpoints.RemoveRange(existingPermissionsForApi);
 
-            // Cập nhật hoặc thêm PermissionForApiEndpoints
-            foreach (var permissionKey in input.PermissionKeys)
+            var newPermissionsForApi = updatedOrNewKeyPermissions.Select(kp => new PermissionForApiEndpoint
             {
-                var permissionForApi = existingPermissionsForApi
-                    .FirstOrDefault(pfa => pfa.KeyPermissionId == permissionKey.Id);
+                ApiEndpointId = input.Id,
+                KeyPermissionId = kp.Id
+            });
+            _dbContext.PermissionForApiEndpoints.AddRange(newPermissionsForApi);
 
-                if (permissionForApi != null)
-                {
-                    // Cập nhật nếu đã tồn tại
-                    permissionForApi.KeyPermissionId = permissionKey.Id;
-                }
-                else
-                {
-                    // Thêm mới nếu chưa tồn tại
-                    _dbContext.PermissionForApiEndpoints.Add(new PermissionForApiEndpoint
-                    {
-                        ApiEndpointId = apiEndpoint.Id,
-                        KeyPermissionId = permissionKey.Id,
-                    });
-                }
-            }
-
-            // Lưu thay đổi một lần duy nhất
             _dbContext.SaveChanges();
             transaction.Commit();
         }
@@ -287,60 +330,47 @@ namespace RolePermissionDemo.Applications.UserModules.Implements
                 Id = c.Id,
                 Path = c.Path,
                 Description = c.Description,
-            });
+            }).AsQueryable();
 
             var result = new PagingResult<PermissionApiDto>()
             {
                 TotalItems = query.Count(),
             };
 
-            if(input.PageSize != -1)
+            if (input.PageSize != -1)
             {
                 query = query.Skip(input.GetSkip()).Take(input.PageSize);
             }
 
             result.Items = query;
-           
+
             return result;
         }
 
         public PermissionApiDetailDto GetPermissionApiById(int id)
         {
-            var query = _dbContext.ApiEndpoints.Where(c => c.Id == id).Include(c => c.PermissionForApiEndpoints)
+            var result = _dbContext.ApiEndpoints.Where(c => c.Id == id).Include(c => c.PermissionForApiEndpoints)
                                                     .ThenInclude(c => c.KeyPermission)
                                                     .Select(api => new PermissionApiDetailDto
-                                                     {
-                                                         Id = api.Id,
-                                                         Path = api.Path,
-                                                         Description = api.Description,
-                                                         KeyPermissions = api.PermissionForApiEndpoints.Select(permissionForApi => new KeyPermissionDto
-                                                         {
-                                                             Id = permissionForApi.KeyPermission.Id,
-                                                             PermissionKey = permissionForApi.KeyPermission.PermissionKey,
-                                                             PermissionLabel = permissionForApi.KeyPermission.PermissionLabel,
-                                                             ParentId = permissionForApi.KeyPermission.ParentId,
-                                                             OrderPriority = permissionForApi.KeyPermission.OrderPriority
-                                                         }).ToList()
-                                                     }).FirstOrDefault() ?? throw new UserFriendlyException(ErrorCode.ApiEndpointNotFound);
-            var result = (from api in _dbContext.ApiEndpoints
-                          where api.Id == id
-                          select new PermissionApiDetailDto
-                          {
-                              Id = api.Id,
-                              Path = api.Path,
-                              Description= api.Description,
-                              KeyPermissions = (from permissionOfApi in _dbContext.PermissionForApiEndpoints
-                                                join keyPermission in _dbContext.KeyPermission on permissionOfApi.KeyPermissionId equals keyPermission.Id
-                                                where permissionOfApi.ApiEndpointId == api.Id
-                                                select new KeyPermissionDto
-                                                {
-                                                    Id = keyPermission.Id,
-                                                    PermissionKey = keyPermission.PermissionKey,
-                                                    PermissionLabel = keyPermission.PermissionLabel,
-                                                    ParentId = keyPermission.ParentId,
-                                                    OrderPriority = keyPermission.OrderPriority
-                                                }).ToList()
-                          }).FirstOrDefault() ?? throw new UserFriendlyException(ErrorCode.ApiEndpointNotFound);
+                                                    {
+                                                        Id = api.Id,
+                                                        Path = api.Path,
+                                                        Description = api.Description,
+                                                        KeyPermissions = api.PermissionForApiEndpoints.Select(permissionForApi => new KeyPermissionDto
+                                                        {
+                                                            Id = permissionForApi.KeyPermission.Id,
+                                                            PermissionKey = permissionForApi.KeyPermission.PermissionKey,
+                                                            PermissionLabel = permissionForApi.KeyPermission.PermissionLabel,
+                                                            ParentId = permissionForApi.KeyPermission.ParentId,
+                                                            Parent = permissionForApi.KeyPermission.ParentId.HasValue ? new
+                                                            {
+                                                                Key = permissionForApi.KeyPermission.ParentId,
+                                                                Label = permissionForApi.KeyPermission.Parent!.PermissionLabel,
+                                                                Data = permissionForApi.KeyPermission.Parent!.PermissionKey,
+                                                            } : null,
+                                                            OrderPriority = permissionForApi.KeyPermission.OrderPriority
+                                                        }).ToList()
+                                                    }).FirstOrDefault() ?? throw new UserFriendlyException(ErrorCode.ApiEndpointNotFound);
             return result;
         }
     }

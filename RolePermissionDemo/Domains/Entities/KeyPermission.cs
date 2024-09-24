@@ -17,6 +17,7 @@ namespace RolePermissionDemo.Domains.Entities
         [MaxLength(50)]
         public string? PermissionLabel { get; set; }
         public int? ParentId { get; set; }
+        public KeyPermission? Parent {  get; set; }
         public int OrderPriority { get; set; }
         public List<KeyPermission>? Children { get; set; }
 

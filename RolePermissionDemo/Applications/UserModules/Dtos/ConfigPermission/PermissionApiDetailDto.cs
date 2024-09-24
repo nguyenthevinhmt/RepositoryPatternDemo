@@ -8,5 +8,6 @@ namespace RolePermissionDemo.Applications.UserModules.Dtos.ConfigPermission
         public string Path { get; set; } = null!;
         public string? Description { get; set; }
         public List<KeyPermissionDto>? KeyPermissions {  get; set; }
+        public object? Parent {  get; set; }
     }
 }
